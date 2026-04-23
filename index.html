@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>土層観察表（江戸）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Meiryo',sans-serif;font-size:14px;background:#f4f4f4;color:#222}
+header{background:#5a3e8a;color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+header h1{font-size:16px;font-weight:bold}
+.header-btns{display:flex;gap:6px;flex-wrap:wrap}
+.btn{padding:6px 10px;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:bold}
+.btn-white{background:#fff;color:#5a3e8a}
+.btn-green{background:#2ecc71;color:#fff}
+.btn-orange{background:#e67e22;color:#fff}
+.btn-red{background:#e74c3c;color:#fff}
+.btn-gray{background:#888;color:#fff}
+.tabs{display:flex;background:#3d2860;position:sticky;top:52px;z-index:99}
+.tab{flex:1;padding:10px 4px;text-align:center;color:#ccc;cursor:pointer;font-size:13px;border-bottom:3px solid transparent}
+.tab.active{color:#fff;border-bottom:3px solid #b39ddb;font-weight:bold}
+.panel{display:none;padding:12px}
+.panel.active{display:block}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.meta-group{display:flex;flex-direction:column;gap:3px}
+label{font-size:12px;color:#555;font-weight:bold}
+select,input[type=text],textarea{width:100%;padding:7px;border:1px solid #ccc;border-radius:5px;font-size:14px;background:#fff;-webkit-appearance:none}
+/* 凡例 */
+.legend-box{background:#ede8f5;border:1px solid #b39ddb;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:12px}
+.legend-box strong{color:#5a3e8a}
+.legend-row{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px}
+.legend-item{white-space:nowrap}
+/* 層カード */
+.layer-card{background:#fff;border-radius:8px;border:1px solid #ddd;margin-bottom:8px;overflow:hidden}
+.layer-header{background:#5a3e8a;color:#fff;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.layer-header-left{display:flex;align-items:center;gap:8px;cursor:pointer;flex:1}
+.layer-num{font-size:18px;font-weight:bold;min-width:28px}
+.layer-summary{font-size:12px;color:#ccc}
+.layer-arrow{font-size:13px;transition:transform 0.2s}
+.layer-arrow.open{transform:rotate(90deg)}
+.layer-body{display:none;padding:10px}
+.layer-body.open{display:block}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.field-group{display:flex;flex-direction:column;gap:3px}
+.field-label{font-size:11px;color:#666;font-weight:bold}
+.color-preview{font-size:13px;color:#5a3e8a;font-weight:bold;padding:4px 6px;background:#f0ebfa;border-radius:4px;min-height:30px;display:flex;align-items:center}
+/* 混入物テーブル */
+.konkyu-section{margin-bottom:10px}
+.konkyu-title{font-size:12px;font-weight:bold;color:#5a3e8a;margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid #d0c8e8}
+.konkyu-table{width:100%;border-collapse:collapse;font-size:12px}
+.konkyu-table th{background:#ede8f5;color:#5a3e8a;padding:5px 3px;text-align:center;border:1px solid #ccc;white-space:nowrap;font-size:11px}
+.konkyu-table td{padding:4px 3px;border:1px solid #ddd;text-align:center;vertical-align:middle}
+.konkyu-table td.item-name{text-align:left;font-size:11px;font-weight:bold;background:#f9f7fd;min-width:65px;padding-left:5px}
+.konkyu-table select{padding:2px;font-size:12px;border:1px solid #ccc;border-radius:3px;width:100%}
+.konkyu-table input[type=text]{padding:3px;font-size:12px;border:1px solid #ccc;border-radius:3px}
+/* 記号ボタン */
+.symbol-group{display:flex;flex-wrap:wrap;gap:4px}
+.sym-btn{padding:5px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;font-size:14px;cursor:pointer;min-width:36px;text-align:center}
+.sym-btn.selected{background:#5a3e8a;color:#fff;border-color:#5a3e8a}
+.sym-none{color:#aaa;font-size:12px;padding:5px 8px;border:1px dashed #ccc;border-radius:4px;cursor:pointer}
+.sym-none.selected{background:#888;color:#fff;border-color:#888}
+.add-layer-btn{background:#5a3e8a;color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:bold;cursor:pointer;width:100%;margin:10px 0}
+/* 一覧 */
+.list-card{background:#fff;border-radius:8px;border:1px solid #ddd;margin-bottom:10px;overflow:hidden}
+.list-card-header{background:#5a3e8a;color:#fff;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.list-card-title{font-size:14px;font-weight:bold}
+.list-card-meta{font-size:12px;color:#ccc}
+.list-card-body{display:none;overflow-x:auto}
+.list-card-body.open{display:block}
+.obs-table{width:100%;border-collapse:collapse;font-size:11px;min-width:800px}
+.obs-table th{background:#5a3e8a;color:#fff;padding:5px 3px;border:1px solid #9b7ec8;white-space:nowrap;text-align:center;font-size:10px}
+.obs-table td{padding:3px 4px;border:1px solid #ddd;vertical-align:top;text-align:center;font-size:11px}
+.obs-table tr:nth-child(even) td{background:#faf8ff}
+.action-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.count-badge{background:#5a3e8a;color:#fff;padding:4px 10px;border-radius:12px;font-size:13px}
+.edit-btn{background:#3498db;color:#fff;border:none;border-radius:3px;padding:3px 8px;cursor:pointer;font-size:12px}
+.del-btn{background:#e74c3c;color:#fff;border:none;border-radius:3px;padding:3px 8px;cursor:pointer;font-size:12px}
+/* 台帳モーダル */
+/* 写真エリア */
+.photo-area{padding:10px;border-top:1px solid #d0c8e8;margin-top:6px}
+.photo-area-title{font-size:12px;font-weight:bold;color:#5a3e8a;margin-bottom:8px}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:8px}
+.photo-card{position:relative;border-radius:6px;overflow:hidden;background:#ede8f5;border:1px solid #c0aee8}
+.photo-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;cursor:pointer}
+.photo-card .photo-caption{font-size:11px;padding:3px 5px;background:rgba(0,0,0,0.55);color:#fff;position:absolute;bottom:0;left:0;right:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.photo-card .photo-del{position:absolute;top:3px;right:3px;background:rgba(231,76,60,0.85);color:#fff;border:none;border-radius:3px;padding:1px 6px;font-size:12px;cursor:pointer}
+.photo-card .photo-edit-btn{position:absolute;top:3px;left:3px;background:rgba(90,62,138,0.85);color:#fff;border:none;border-radius:3px;padding:1px 6px;font-size:12px;cursor:pointer}
+.photo-add-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px}
+.photo-add-btn{background:#fff;border:2px dashed #5a3e8a;border-radius:6px;color:#5a3e8a;font-size:13px;font-weight:bold;padding:8px;width:100%;cursor:pointer}
+.photo-add-btn:hover{background:#f0ebfa}
+.photo-input{display:none}
+/* 手書きモーダル */
+.draw-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;background:rgba(0,0,0,0.85);flex-direction:column}
+.draw-modal.open{display:flex}
+.draw-toolbar{background:#3d2860;padding:8px 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.draw-toolbar label{color:#fff;font-size:12px}
+.draw-toolbar input[type=color]{width:36px;height:30px;border:none;border-radius:4px;padding:0;cursor:pointer}
+.draw-toolbar input[type=range]{width:80px}
+.draw-canvas-wrap{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#222}
+#drawCanvas{touch-action:none;cursor:crosshair;max-width:100%;max-height:100%}
+.draw-actions{background:#3d2860;padding:8px 10px;display:flex;gap:8px;justify-content:flex-end}
+.ledger-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:rgba(0,0,0,0.7);flex-direction:column}
+.ledger-modal.open{display:flex}
+.ledger-modal-bar{background:#3d2860;padding:8px 12px;display:flex;gap:8px;align-items:center}
+.ledger-modal-bar span{color:#fff;font-size:14px;font-weight:bold;flex:1}
+.ledger-modal-body{flex:1;overflow-y:auto;background:#ddd;padding:10px}
+.ledger-page{background:#fff;max-width:900px;margin:0 auto 16px;padding:16px}
+.ledger-title{font-size:18px;font-weight:bold;text-align:center;margin-bottom:6px;border-bottom:2px solid #333;padding-bottom:4px}
+.ledger-meta{font-size:12px;margin-bottom:8px}
+.ledger-obs-table{width:100%;border-collapse:collapse;font-size:10px}
+.ledger-obs-table th{background:#333;color:#fff;padding:4px 2px;border:1px solid #666;text-align:center;white-space:nowrap;font-size:9px}
+.ledger-obs-table td{padding:3px 3px;border:1px solid #ccc;vertical-align:middle;text-align:center;height:20px;font-size:9px}
+.ledger-obs-table tr:nth-child(odd) td{background:#fafafa}
+.ledger-note{font-size:9px;color:#444;margin-top:6px;border-top:1px solid #ddd;padding-top:4px}
+@media print{
+  header,.tabs,.panel,.action-bar,.ledger-modal-bar{display:none!important}
+  .ledger-modal{position:static!important;background:none!important;display:block!important}
+  .ledger-modal-body{overflow:visible!important;background:none!important;padding:0!important}
+  .ledger-page{page-break-after:always;margin:0;padding:10px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 土層観察表（江戸）</h1>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+    <div class="header-btns">
+      <button class="btn btn-white" onclick="saveJSON()">JSON保存</button>
+      <button class="btn btn-white" onclick="loadJSON()">JSON読込</button>
+      <input type="file" id="jsonFileInput" accept=".json" style="display:none" onchange="loadJSONFile(event)">
+    </div>
+    <div id="autoSaveStatus" style="font-size:11px;color:#ccc">自動保存：未保存</div>
+  </div>
+</header>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('input')">入力</div>
+  <div class="tab" onclick="switchTab('list')">一覧 (<span id="countBadge">0</span>)</div>
+</div>
+
+<!-- 入力タブ -->
+<div class="panel active" id="panel-input">
+  <!-- 凡例 -->
+  <div class="legend-box">
+    <strong>【混入量の凡例】</strong>
+    <div class="legend-row">
+      <span class="legend-item">●　非常に多く含む（51%〜）</span>
+      <span class="legend-item">◎　多量に含む（21〜50%）</span>
+      <span class="legend-item">○　含む（6〜20%）</span>
+      <span class="legend-item">▲　少量含む（3〜5%）</span>
+      <span class="legend-item">△　微量含む（1〜2%）</span>
+    </div>
+    <div style="margin-top:4px"><strong>【粘性・締まり】</strong>　◎ 強い　○ 普通　△ やや弱い　× なし</div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-group">
+      <label>遺構</label>
+      <select id="ikoNum"></select>
+    </div>
+    <div class="meta-group">
+      <label>セクション</label>
+      <select id="section"></select>
+    </div>
+    <div class="meta-group">
+      <label>備考（任意）</label>
+      <input type="text" id="metaBiko" placeholder="調査区名など">
+    </div>
+  </div>
+
+  <div id="layerCards"></div>
+  <button class="add-layer-btn" onclick="addLayer()">＋ 層を追加</button>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+    <button class="btn btn-green" onclick="saveRecord()" style="padding:12px;font-size:14px">💾 保存する</button>
+    <button class="btn btn-gray" onclick="resetForm()" style="padding:12px;font-size:14px">リセット</button>
+  </div>
+  <p style="color:#888;font-size:12px;margin-top:6px;text-align:center">保存しないと入力内容は消えます</p>
+</div>
+
+<!-- 一覧タブ -->
+<div class="panel" id="panel-list">
+  <div class="action-bar">
+    <span class="count-badge" id="listCount">0件</span>
+    <button class="btn btn-orange" onclick="openLedger()">🖨 台帳出力</button>
+    <button class="btn btn-white" onclick="exportCSV()" style="border:1px solid #ccc">📥 CSV出力</button>
+    <button class="btn btn-orange" onclick="exportFormCSV()">📋 フォーム用CSV</button>
+    <button class="btn btn-red" onclick="resetAutoSave()">🔄 自動保存リセット</button>
+  </div>
+  <div id="recordList"></div>
+</div>
+
+<!-- 台帳モーダル -->
+<div class="ledger-modal" id="ledgerModal">
+  <div class="ledger-modal-bar">
+    <span>🖨 土層観察表（江戸）プレビュー</span>
+    <button class="btn btn-white" onclick="window.print()" style="padding:6px 14px">印刷 / PDF保存</button>
+    <button class="btn btn-gray" onclick="closeLedger()" style="padding:6px 14px">閉じる</button>
+  </div>
+  <div class="ledger-modal-body" id="ledgerBody"></div>
+</div>
+
+<!-- ===== 手書きモーダル ===== -->
+<div class="draw-modal" id="drawModal">
+  <div class="draw-toolbar">
+    <label style="color:#fff;font-size:13px">🎨<input type="color" id="drawColor" value="#e74c3c"></label>
+    <label style="color:#fff;font-size:13px">太さ<input type="range" id="drawSize" min="2" max="40" value="6" style="width:70px"></label>
+    <button class="btn btn-white" onclick="setDrawMode('pen')" id="btnPen" style="padding:5px 10px;font-size:13px">✏️ ペン</button>
+    <button class="btn btn-gray" onclick="setDrawMode('eraser')" id="btnEraser" style="padding:5px 10px;font-size:13px">🧹 消しゴム</button>
+    <button class="btn btn-gray" onclick="undoDraw()" style="padding:5px 10px;font-size:13px">↩ 戻す</button>
+    <button class="btn btn-red" onclick="clearDraw()" style="padding:5px 10px;font-size:13px">🗑 全消去</button>
+  </div>
+  <div class="draw-canvas-wrap"><canvas id="drawCanvas"></canvas></div>
+  <div class="draw-actions">
+    <button class="btn btn-gray" onclick="closeDrawModal()" style="padding:10px 20px">キャンセル</button>
+    <button class="btn btn-green" onclick="saveDrawing()" style="padding:10px 20px">💾 保存</button>
+  </div>
+</div>
+
+<script>
+// ===== 土色マスタ（389件）=====
+const COLOR_RAW = [
+["7.5R7/1","明赤灰"],["7.5R6/1","赤灰"],["7.5R5/1","赤灰"],["7.5R4/1","暗赤杯"],["7.5R3/1","暗赤杯"],["7.5R2/1","赤黒"],["7.5R1.7/1","赤黒"],["7.5R6/2","灰赤"],["7.5R5/2","灰赤"],["7.5R4/2","灰赤"],["7.5R3/2","暗赤褐"],["7.5R2/2","極暗赤褐"],["7.5R5/3","にぶい赤褐"],["7.5R4/3","にぶい赤褐"],["7.5R3/3","暗赤褐"],["7.5R2/3","極暗赤褐"],["7.5R4/4","にぶい赤"],["7.5R3/4","暗赤"],["7.5R4/6","赤"],["7.5R3/6","暗赤"],["7.5R4/8","赤"],
+["10R7/1","明赤灰"],["10R6/1","赤灰"],["10R5/1","赤灰"],["10R4/1","暗赤灰"],["10R3/1","暗赤灰"],["10R2/1","赤黒"],["10R1.7/1","赤黒"],["10R6/2","灰赤"],["10R5/2","灰赤"],["10R4/2","灰赤"],["10R3/2","暗赤褐"],["10R2/2","極暗赤褐"],["10R6/3","にぶい赤褐"],["10R5/3","赤褐"],["10R4/3","赤褐"],["10R3/3","暗赤褐"],["10R2/3","極暗赤褐"],["10R6/4","にぶい赤褐"],["10R5/4","赤褐"],["10R4/4","赤褐"],["10R3/4","暗赤"],["10R6/6","赤橙"],["10R5/6","赤"],["10R4/6","赤"],["10R3/6","暗赤"],["10R6/8","赤橙"],["10R5/8","赤"],["10R4/8","赤"],
+["2.5YR7/1","明赤灰"],["2.5YR6/1","赤灰"],["2.5YR5/1","赤灰"],["2.5YR4/1","赤灰"],["2.5YR3/1","暗赤灰"],["2.5YR2/1","赤黒"],["2.5YR1.7/1","赤黒"],["2.5YR7/2","明赤灰"],["2.5YR6/2","灰赤"],["2.5YR5/2","灰赤"],["2.5YR4/2","灰赤"],["2.5YR3/2","暗赤褐"],["2.5YR2/2","極暗赤褐"],["2.5YR7/3","淡赤橙"],["2.5YR6/3","にぶい橙"],["2.5YR5/3","にぶい赤褐"],["2.5YR4/3","にぶい赤褐"],["2.5YR3/3","暗赤褐"],["2.5YR2/3","極暗赤褐"],["2.5YR7/4","淡赤橙"],["2.5YR6/4","にぶい橙"],["2.5YR5/4","にぶい赤褐"],["2.5YR4/4","にぶい赤褐"],["2.5YR3/4","暗赤褐"],["2.5YR2/4","極暗赤褐"],["2.5YR7/6","橙"],["2.5YR6/6","橙"],["2.5YR5/6","明赤褐"],["2.5YR4/6","赤褐"],["2.5YR3/6","暗赤褐"],["2.5YR7/8","橙"],["2.5YR6/8","橙"],["2.5YR5/8","明赤褐"],["2.5YR4/8","赤褐"],
+["5YR8/1","灰白"],["5YR7/1","明褐灰"],["5YR6/1","褐灰"],["5YR5/1","褐灰"],["5YR4/1","褐灰"],["5YR3/1","黒褐"],["5YR2/1","黒褐"],["5YR1.7/1","黒"],["5YR8/2","灰白"],["5YR7/2","明褐灰"],["5YR6/2","灰褐"],["5YR5/2","灰褐"],["5YR4/2","灰褐"],["5YR3/2","暗赤褐"],["5YR2/2","黒褐"],["5YR8/3","淡橙"],["5YR7/3","にぶい橙"],["5YR6/3","にぶい橙"],["5YR5/3","にぶい赤褐"],["5YR4/3","にぶい赤褐"],["5YR3/3","暗赤褐"],["5YR2/3","極暗赤褐"],["5YR8/4","淡橙"],["5YR7/4","にぶい橙"],["5YR6/4","にぶい橙"],["5YR5/4","にぶい赤褐"],["5YR4/4","にぶい赤褐"],["5YR3/4","暗赤褐"],["5YR2/4","極暗赤褐"],["5YR7/6","橙"],["5YR6/6","橙"],["5YR5/6","明赤褐"],["5YR4/6","赤褐"],["5YR3/6","暗赤褐"],["5YR7/8","橙"],["5YR6/8","橙"],["5YR5/8","明赤褐"],["5YR4/8","赤褐"],
+["7.5YR8/1","灰白"],["7.5YR7/1","明褐灰"],["7.5YR6/1","褐灰"],["7.5YR5/1","褐灰"],["7.5YR4/1","褐灰"],["7.5YR3/1","黒褐"],["7.5YR2/1","黒"],["7.5YR1.7/1","黒"],["7.5YR8/2","灰白"],["7.5YR7/2","明褐灰"],["7.5YR6/2","灰褐"],["7.5YR5/2","灰褐"],["7.5YR4/2","灰褐"],["7.5YR3/2","黒褐"],["7.5YR2/2","黒褐"],["7.5YR8/3","浅黄橙"],["7.5YR7/3","にぶい橙"],["7.5YR6/3","にぶい褐"],["7.5YR5/3","にぶい褐"],["7.5YR4/3","褐"],["7.5YR3/3","暗褐"],["7.5YR2/3","極暗褐"],["7.5YR8/4","浅黄橙"],["7.5YR7/4","にぶい橙"],["7.5YR6/4","にぶい橙"],["7.5YR5/4","にぶい褐"],["7.5YR4/4","褐"],["7.5YR3/4","暗褐"],["7.5YR8/6","浅黄橙"],["7.5YR7/6","橙"],["7.5YR6/6","橙"],["7.5YR5/6","明褐"],["7.5YR4/6","褐"],["7.5YR8/8","黄橙"],["7.5YR7/8","黄橙"],["7.5YR6/8","橙"],["7.5YR5/8","明褐"],
+["10YR8/1","灰白"],["10YR7/1","灰白"],["10YR6/1","褐灰"],["10YR5/1","褐灰"],["10YR4/1","褐灰"],["10YR3/1","黒褐"],["10YR2/1","黒"],["10YR1.7/1","黒"],["10YR8/2","灰白"],["10YR7/2","にぶい黄橙"],["10YR6/2","灰黄褐"],["10YR5/2","灰黄褐"],["10YR4/2","灰黄褐"],["10YR3/2","黒褐"],["10YR2/2","黒褐"],["10YR8/3","浅黄橙"],["10YR7/3","にぶい黄橙"],["10YR6/3","にぶい黄橙"],["10YR5/3","にぶい黄褐"],["10YR4/3","にぶい黄褐"],["10YR3/3","暗褐"],["10YR2/3","黒褐"],["10YR8/4","浅黄橙"],["10YR7/4","にぶい黄橙"],["10YR6/4","にぶい黄橙"],["10YR5/4","にぶい黄褐"],["10YR4/4","褐"],["10YR3/4","暗褐"],["10YR8/6","黄橙"],["10YR7/6","明黄褐"],["10YR6/6","明黄褐"],["10YR5/6","黄褐"],["10YR4/6","褐"],["10YR8/8","黄橙"],["10YR7/8","黄橙"],["10YR6/8","明黄褐"],["10YR5/8","黄褐"],
+["2.5Y8/1","灰白"],["2.5Y7/1","灰白"],["2.5Y6/1","黄灰"],["2.5Y5/1","黄灰"],["2.5Y4/1","黄灰"],["2.5Y3/1","黒褐"],["2.5Y2/1","黒"],["2.5Y8/2","灰白"],["2.5Y7/2","灰黄"],["2.5Y6/2","灰黄"],["2.5Y5/2","暗灰黄"],["2.5Y4/2","暗灰黄"],["2.5Y3/2","黒褐"],["2.5Y8/3","淡黄"],["2.5Y7/3","浅黄"],["2.5Y6/3","にぶい黄"],["2.5Y5/3","黄褐"],["2.5Y4/3","オリーブ褐"],["2.5Y3/3","暗オリーブ褐"],["2.5Y8/4","淡黄"],["2.5Y7/4","浅黄"],["2.5Y6/4","にぶい黄"],["2.5Y5/4","黄褐"],["2.5Y4/4","オリーブ褐"],["2.5Y8/6","黄"],["2.5Y7/6","明黄褐"],["2.5Y6/6","明黄褐"],["2.5Y5/6","黄褐"],["2.5Y4/6","オリーブ褐"],["2.5Y8/8","黄"],["2.5Y7/8","黄"],["2.5Y6/8","明黄褐"],
+["5Y8/1","灰白"],["5Y7/1","灰白"],["5Y6/1","灰"],["5Y5/1","灰"],["5Y4/1","灰"],["5Y3/1","オリーブ黒"],["5Y2/1","黒"],["5Y8/2","灰白"],["5Y7/2","灰白"],["5Y6/2","灰オリーブ"],["5Y5/2","灰オリーブ"],["5Y4/2","灰オリーブ"],["5Y3/2","オリーブ黒"],["5Y2/2","オリーブ黒"],["5Y8/3","淡黄"],["5Y7/3","浅黄"],["5Y6/3","オリーブ黄"],["5Y5/3","灰オリーブ"],["5Y4/3","暗オリーブ"],["5Y8/4","淡黄"],["5Y7/4","浅黄"],["5Y6/4","オリーブ黄"],["5Y5/4","オリーブ"],["5Y4/4","暗オリーブ"],["5Y8/6","黄"],["5Y7/6","黄"],["5Y6/6","オリーブ"],["5Y5/6","オリーブ"],["5Y8/8","黄"],["5Y7/8","黄"],["5Y6/8","オリーブ"],
+["7.5Y8/1","灰白"],["7.5Y7/1","灰白"],["7.5Y6/1","灰"],["7.5Y5/1","灰"],["7.5Y4/1","灰"],["7.5Y3/1","オリーブ黒"],["7.5Y2/1","黒"],["7.5Y8/2","灰白"],["7.5Y7/2","灰白"],["7.5Y6/2","灰オリーブ"],["7.5Y5/2","灰オリーブ"],["7.5Y4/2","灰オリーブ"],["7.5Y3/2","オリーブ黒"],["7.5Y2/2","オリーブ黒"],["7.5Y8/3","淡黄"],["7.5Y7/3","浅黄"],["7.5Y6/3","オリーブ黄"],["7.5Y5/3","灰オリーブ"],["7.5Y4/3","暗オリーブ"],
+["10Y8/1","灰白"],["10Y7/1","灰白"],["10Y6/1","灰"],["10Y5/1","灰"],["10Y4/1","灰"],["10Y3/1","オリーブ黒"],["10Y2/1","黒"],["10Y8/2","灰白"],["10Y7/2","灰白"],["10Y6/2","オリーブ灰"],["10Y5/2","オリーブ灰"],["10Y4/2","オリーブ灰"],["10Y3/2","オリーブ黒"],
+["N8/0","灰白"],["N7/0","灰白"],["N6/0","灰"],["N5/0","灰"],["N4/0","灰"],["N3/0","暗灰"],["N2/0","黒"],["N1.5/0","黒"],
+["2.5GY8/1","灰白"],["2.5GY7/1","明オリーブ灰"],["2.5GY6/1","オリーブ灰"],["2.5GY5/1","オリーブ灰"],["2.5GY4/1","暗オリーブ灰"],["2.5GY3/1","暗オリーブ灰"],["2.5GY2/1","黒"],
+["5GY8/1","灰白"],["5GY7/1","明オリーブ灰"],["5GY6/1","オリーブ灰"],["5GY5/1","オリーブ灰"],["5GY4/1","暗オリーブ灰"],["5GY3/1","暗オリーブ灰"],["5GY2/1","オリーブ黒"],
+["7.5GY8/1","明緑灰"],["7.5GY7/1","明緑灰"],["7.5GY6/1","緑灰"],["7.5GY5/1","緑灰"],["7.5GY4/1","暗緑灰"],["7.5GY3/1","暗緑灰"],["7.5GY2/1","緑黒"],
+["10GY8/1","明緑灰"],["10GY7/1","明緑灰"],["10GY6/1","緑灰"],["10GY5/1","緑灰"],["10GY4/1","暗緑灰"],["10GY3/1","暗緑灰"],["10GY2/1","緑黒"],
+["5G7/1","明緑灰"],["5G6/1","緑灰"],["5G5/1","緑灰"],["5G4/1","暗緑灰"],["5G3/1","暗緑灰"],["5G2/1","緑黒"],["5G1.7/1","緑黒"],
+["10G7/1","明緑灰"],["10G6/1","緑灰"],["10G5/1","緑灰"],["10G4/1","暗緑灰"],["10G3/1","暗緑灰"],["10G2/1","緑黒"],["10G1.7/1","緑黒"],
+["5BG7/1","明青灰"],["5BG6/1","青灰"],["5BG5/1","青灰"],["5BG4/1","暗青灰"],["5BG3/1","暗青灰"],["5BG2/1","青黒"],["5BG1.7/1","青黒"],
+["10BG7/1","明青灰"],["10BG6/1","青灰"],["10BG5/1","青灰"],["10BG4/1","暗青灰"],["10BG3/1","暗青灰"],["10BG2/1","青黒"],["10BG1.7/1","青黒"],
+["5B7/1","明青灰"],["5B6/1","青灰"],["5B5/1","青灰"],["5B4/1","暗青灰"],["5B3/1","暗青灰"],["5B2/1","青黒"],["5B1.7/1","青黒"],
+["5PB7/1","明青灰"],["5PB6/1","青灰"],["5PB5/1","青灰"],["5PB4/1","暗青灰"],["5PB3/1","暗青灰"],["5PB2/1","青黒"],["5PB1.7/1","青黒"],
+["5P7/1","明紫灰"],["5P6/1","紫灰"],["5P5/1","紫灰"],["5P4/1","暗紫灰"],["5P3/1","暗紫灰"],["5P2/1","紫黒"],["5P1.7/1","紫黒"],
+["5RP7/1","明紫灰"],["5RP6/1","紫灰"],["5RP5/1","紫灰"],["5RP4/1","暗紫灰"],["5RP3/1","暗紫灰"],["5RP2/1","紫黒"],["5RP1.7/1","紫黒"],
+["5R7/1","明赤灰"],["5R6/1","赤灰"],["5R5/1","赤灰"],["5R4/1","暗赤灰"],["5R3/1","暗赤灰"],["5R2/1","赤黒"],["5R1.7/1","赤黒"]
+];
+const COLOR_MASTER = {};
+COLOR_RAW.forEach(([code,name])=>{ COLOR_MASTER[code]=name; });
+
+const HUES    = ['','7.5R','10R','2.5YR','5YR','7.5YR','10YR','2.5Y','5Y','7.5Y','10Y','N','2.5GY','5GY','7.5GY','10GY','5G','10G','5BG','10BG','5B','5PB','5P','5RP','5R'];
+const VALUES  = ['','1.5','1.7','2','3','4','5','6','7','8'];
+const CHROMAS = ['','1','2','3','4','5','6','7','8'];
+const MM_VALS = ['','1','2','3','4','5','6','7','8','9','10','15','20','30','40','50','100'];
+const KONKYU_ITEMS = ['ローム土','焼土','炭化物','玉砂利','礫・石片','砂','その他遺物'];
+const KONKYU_AMT   = ['●','◎','○','▲','△','-'];
+const NENDO_SHIM   = ['◎','○','△','×'];
+
+let records = [];
+let editIndex = -1;
+let currentLayers = [];
+let layerCounter = 0;
+const openListGroups = new Set();
+
+function getColor(hue, val, chr) {
+  if (!hue || !val || !chr) return null;
+  const key = hue==='N' ? `N${val}/0` : `${hue}${val}/${chr}`;
+  return COLOR_MASTER[key] || null;
+}
+
+function init() {
+  const ikoSel = document.getElementById('ikoNum');
+  ikoSel.innerHTML = '<option value="">--</option>';
+  for (let i=1;i<=500;i++){
+    const o=document.createElement('option');
+    o.value=`${i}S`;o.textContent=`${i}S`;
+    ikoSel.appendChild(o);
+  }
+  const secSel = document.getElementById('section');
+  secSel.innerHTML = '<option value="">--</option>';
+  for (let c=65;c<=90;c++){
+    const o=document.createElement('option');
+    o.value=String.fromCharCode(c);o.textContent=String.fromCharCode(c);
+    secSel.appendChild(o);
+  }
+
+  // 起動時に自動復元
+  const saved = localStorage.getItem('edoRecords');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (Array.isArray(data) && data.length > 0) {
+        records = data;
+        const p = localStorage.getItem('edoPhotos');
+        if (p) Object.assign(groupPhotos, JSON.parse(p));
+        renderList();
+        updateBadge();
+        const timeStr = localStorage.getItem('edoAutoSaveTime') || '';
+        const el = document.getElementById('autoSaveStatus');
+        if (el) el.textContent = `✅ 自動保存：${timeStr}（復元済み）`;
+      }
+    } catch(e) {}
+  }
+}
+
+function makeSelOpts(arr, selected='') {
+  return arr.map(v=>`<option value="${v}" ${v===selected?'selected':''}>${v||'---'}</option>`).join('');
+}
+function makeMmOpts(selected='') {
+  return MM_VALS.map(v=>`<option value="${v}" ${v===selected?'selected':''}>${v||'---'}</option>`).join('');
+}
+
+function addLayer(data) {
+  if (currentLayers.length >= 99) { alert('最大99層まで追加できます。'); return; }
+  layerCounter++;
+  const cid = layerCounter;
+  const layerNum = data?.layerNum ?? (currentLayers.length>0 ? Math.max(...currentLayers.map(l=>l.layerNum))+1 : 1);
+  currentLayers.push({layerNum, cardId: cid});
+
+  const container = document.getElementById('layerCards');
+  const card = document.createElement('div');
+  card.className='layer-card'; card.id=`layerCard_${cid}`;
+
+  const konkyu_rows = KONKYU_ITEMS.map(item => {
+    const key=encItem(item);
+    const isOther = item==='その他遺物';
+    const d = data?.konkyu?.[item]||{};
+    return `<tr>
+      <td class="item-name">${item}</td>
+      <td><select id="kmin_${cid}_${key}">${makeMmOpts(d.min||'')}</select></td>
+      <td><select id="kmax_${cid}_${key}">${makeMmOpts(d.max||'')}</select></td>
+      <td><select id="kamt_${cid}_${key}"><option value="">-</option>${KONKYU_AMT.map(s=>`<option value="${s}" ${s===(d.amt||'')?'selected':''}>${s}</option>`).join('')}</select></td>
+      ${isOther ? `<td colspan="1"><input type="text" id="ktext_${cid}" placeholder="遺物名を記入" value="${data?.otherText||''}" style="padding:2px;font-size:12px"></td>` : '<td></td>'}
+    </tr>`;
+  }).join('');
+
+  const hue_sel  = data?.hue  || '';
+  const val_sel  = data?.val  || '';
+  const chr_sel  = data?.chr  || '';
+
+  card.innerHTML = `
+    <div class="layer-header">
+      <div class="layer-header-left" onclick="toggleLayer(${cid})">
+        <span class="layer-num" id="layerNumDisp_${cid}">${layerNum}</span>
+        <span style="font-size:12px;color:#ccc;margin-right:4px">層</span>
+        <span class="layer-summary" id="layerSummary_${cid}">未入力</span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="layer-arrow open" id="layerArrow_${cid}" onclick="toggleLayer(${cid})">▶</span>
+        <button onclick="removeLayer(${cid})" style="background:rgba(231,76,60,0.8);color:#fff;border:none;border-radius:3px;padding:2px 8px;font-size:12px;cursor:pointer">✕</button>
+      </div>
+    </div>
+    <div class="layer-body open" id="layerBody_${cid}">
+      <!-- 主体土・色調 -->
+      <div style="margin-bottom:8px">
+        <div class="field-label" style="margin-bottom:4px">主体土（色調）</div>
+        <div class="row4">
+          <div class="field-group">
+            <div class="field-label">Hue</div>
+            <select id="hue_${cid}" onchange="updateColor(${cid})">${makeSelOpts(HUES, hue_sel)}</select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Value</div>
+            <select id="val_${cid}" onchange="updateColor(${cid})">${makeSelOpts(VALUES, val_sel)}</select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Chroma</div>
+            <select id="chr_${cid}" onchange="updateColor(${cid})">${makeSelOpts(CHROMAS, chr_sel)}</select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">→ 自動表示</div>
+            <div class="color-preview" id="colorPreview_${cid}">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 混入物 -->
+      <div class="konkyu-section">
+        <div class="konkyu-title">混入物（粒径mm・混入量）</div>
+        <table class="konkyu-table">
+          <thead>
+            <tr>
+              <th style="min-width:65px">混入物</th>
+              <th>粒径 最小</th>
+              <th>粒径 最大</th>
+              <th>混入量</th>
+              <th>その他遺物記入欄</th>
+            </tr>
+          </thead>
+          <tbody>${konkyu_rows}</tbody>
+        </table>
+      </div>
+
+      <!-- 粘性・締まり・備考 -->
+      <div class="row2">
+        <div class="field-group">
+          <div class="field-label">粘性</div>
+          <div class="symbol-group" id="nendo_${cid}"></div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">締まり</div>
+          <div class="symbol-group" id="shime_${cid}"></div>
+        </div>
+      </div>
+      <div class="field-group" style="margin-top:6px">
+        <div class="field-label">備考</div>
+        <input type="text" id="biko_${cid}" placeholder="自由記入" value="${data?.biko||''}">
+      </div>
+    </div>
+  `;
+
+  // 粘性・締まりボタン生成
+  ['nendo','shime'].forEach(type => {
+    const wrap = card.querySelector(`#${type}_${cid}`);
+    const none = document.createElement('button');
+    none.className='sym-none selected'; none.textContent='未'; none.dataset.val='';
+    none.addEventListener('click',()=>{
+      wrap.querySelectorAll('.sym-btn,.sym-none').forEach(b=>b.classList.remove('selected'));
+      none.classList.add('selected'); updateLayerSummary(cid);
+    });
+    wrap.appendChild(none);
+    NENDO_SHIM.forEach(sym=>{
+      const btn=document.createElement('button');
+      btn.className='sym-btn'; btn.textContent=sym; btn.dataset.val=sym;
+      btn.addEventListener('click',()=>{
+        wrap.querySelectorAll('.sym-btn,.sym-none').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected'); updateLayerSummary(cid);
+      });
+      wrap.appendChild(btn);
+    });
+    // データがある場合はセット
+    const savedVal = data?.[type]||'';
+    if (savedVal) {
+      wrap.querySelectorAll('.sym-btn,.sym-none').forEach(b=>b.classList.remove('selected'));
+      const target = Array.from(wrap.querySelectorAll('.sym-btn')).find(b=>b.dataset.val===savedVal);
+      if (target) target.classList.add('selected');
+    }
+  });
+
+  container.appendChild(card);
+  updateColor(cid);
+  updateLayerSummary(cid);
+}
+
+function encItem(item){ return item.replace(/[・\s\/]/g,'_').replace(/[^\w]/g,'X'); }
+
+function updateColor(cid) {
+  const hue = document.getElementById(`hue_${cid}`)?.value||'';
+  const val = document.getElementById(`val_${cid}`)?.value||'';
+  const chr = document.getElementById(`chr_${cid}`)?.value||'';
+  const name = getColor(hue,val,chr);
+  const prev = document.getElementById(`colorPreview_${cid}`);
+  if (!prev) return;
+  const code = hue&&val&&chr ? (hue==='N'?`N${val}/`:`${hue}${val}/${chr}`) : '';
+  if (name) {
+    prev.textContent = `${name}（${code}）`;
+    prev.style.color = '#2c5f8a';
+  } else if (code) {
+    prev.textContent = `${code}（未登録）`;
+    prev.style.color = '#aaa';
+  } else {
+    prev.textContent = '-';
+    prev.style.color = '#aaa';
+  }
+  updateLayerSummary(cid);
+}
+
+function getSelectedSym(containerId) {
+  const wrap=document.getElementById(containerId);
+  if(!wrap) return '';
+  const sel=wrap.querySelector('.sym-btn.selected');
+  return sel?sel.dataset.val:'';
+}
+
+function updateLayerSummary(cid) {
+  const hue=document.getElementById(`hue_${cid}`)?.value||'';
+  const val=document.getElementById(`val_${cid}`)?.value||'';
+  const chr=document.getElementById(`chr_${cid}`)?.value||'';
+  const name=getColor(hue,val,chr);
+  const nendo=getSelectedSym(`nendo_${cid}`);
+  const shime=getSelectedSym(`shime_${cid}`);
+  const parts=[];
+  if(name) parts.push(name);
+  else if(hue&&val&&chr) parts.push(`${hue}${val}/${chr}`);
+  if(nendo) parts.push(`粘${nendo}`);
+  if(shime) parts.push(`締${shime}`);
+  const s=document.getElementById(`layerSummary_${cid}`);
+  if(s) s.textContent=parts.length?parts.join(' / '):'未入力';
+}
+
+function toggleLayer(cid) {
+  const body=document.getElementById(`layerBody_${cid}`);
+  const arrow=document.getElementById(`layerArrow_${cid}`);
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  arrow.classList.toggle('open',!isOpen);
+}
+
+function removeLayer(cid) {
+  if(!confirm('この層を削除しますか？')) return;
+  document.getElementById(`layerCard_${cid}`)?.remove();
+  currentLayers=currentLayers.filter(l=>l.cardId!==cid);
+}
+
+function collectLayer(cid) {
+  const hue=document.getElementById(`hue_${cid}`)?.value||'';
+  const val=document.getElementById(`val_${cid}`)?.value||'';
+  const chr=document.getElementById(`chr_${cid}`)?.value||'';
+  const colorName=getColor(hue,val,chr)||'';
+  const code=hue&&val&&chr?(hue==='N'?`N${val}/`:`${hue}${val}/${chr}`):'';
+  const konkyu={};
+  KONKYU_ITEMS.forEach(item=>{
+    const key=encItem(item);
+    konkyu[item]={
+      min:document.getElementById(`kmin_${cid}_${key}`)?.value||'',
+      max:document.getElementById(`kmax_${cid}_${key}`)?.value||'',
+      amt:document.getElementById(`kamt_${cid}_${key}`)?.value||''
+    };
+  });
+  const layerNumDisp=document.getElementById(`layerNumDisp_${cid}`);
+  return {
+    layerNum:layerNumDisp?parseInt(layerNumDisp.textContent):0,
+    hue,val,chr,colorName,colorCode:code,
+    nendo:getSelectedSym(`nendo_${cid}`),
+    shime:getSelectedSym(`shime_${cid}`),
+    biko:document.getElementById(`biko_${cid}`)?.value?.trim()||'',
+    otherText:document.getElementById(`ktext_${cid}`)?.value?.trim()||'',
+    konkyu
+  };
+}
+
+function collectForm() {
+  const cards=document.querySelectorAll('.layer-card');
+  const layers=[];
+  cards.forEach(card=>{
+    const cid=card.id.replace('layerCard_','');
+    layers.push(collectLayer(cid));
+  });
+  return {
+    id:Date.now(),
+    iko:document.getElementById('ikoNum').value,
+    section:document.getElementById('section').value,
+    metaBiko:document.getElementById('metaBiko').value.trim(),
+    layers
+  };
+}
+
+// ===== 自動保存 =====
+function autoSave() {
+  try {
+    localStorage.setItem('edoRecords', JSON.stringify(records));
+    localStorage.setItem('edoPhotos', JSON.stringify(groupPhotos));
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+    localStorage.setItem('edoAutoSaveTime', timeStr);
+    const el = document.getElementById('autoSaveStatus');
+    if (el) {
+      el.textContent = `✅ 自動保存：${timeStr}`;
+      el.style.color = '#7dff9e';
+      setTimeout(() => { el.style.color = '#ccc'; }, 2000);
+    }
+  } catch(e) {
+    const el = document.getElementById('autoSaveStatus');
+    if (el) { el.textContent = '⚠️ 自動保存失敗（容量不足）'; el.style.color = '#ffaa44'; }
+  }
+}
+
+function saveRecord() {
+  const rec=collectForm();
+  if(!rec.iko){alert('遺構を選択してください。');return;}
+  if(editIndex>=0){rec.id=records[editIndex].id;records[editIndex]=rec;editIndex=-1;}
+  else records.push(rec);
+  renderList();updateBadge();autoSave();switchTab('list');
+}
+
+function editRecord(idx) {
+  editIndex=idx;
+  const rec=records[idx];
+  clearLayers();
+  document.getElementById('ikoNum').value=rec.iko||'';
+  document.getElementById('section').value=rec.section||'';
+  document.getElementById('metaBiko').value=rec.metaBiko||'';
+  (rec.layers||[]).forEach(layer=>addLayer(layer));
+  switchTab('input');
+}
+
+function deleteRecord(idx) {
+  if(!confirm('この記録を削除しますか？')) return;
+  records.splice(idx,1);renderList();updateBadge();
+}
+
+function clearLayers() {
+  document.getElementById('layerCards').innerHTML='';
+  currentLayers=[];layerCounter=0;
+}
+
+function resetForm() {
+  if(!confirm('入力内容をリセットしますか？')) return;
+  editIndex=-1;
+  document.getElementById('ikoNum').value='';
+  document.getElementById('section').value='';
+  document.getElementById('metaBiko').value='';
+  clearLayers();
+}
+
+function renderList() {
+  const container=document.getElementById('recordList');
+  container.innerHTML='';
+  if(!records.length){container.innerHTML='<p style="color:#888;text-align:center;margin-top:20px">データがありません。</p>';return;}
+  records.forEach((rec,idx)=>{
+    const card=document.createElement('div');
+    card.className='list-card';
+    const isOpen=openListGroups.has(rec.id);
+    const title=`${rec.iko||'遺構未選択'}${rec.section?'−'+rec.section:''}${rec.metaBiko?'　'+rec.metaBiko:''}`;
+    const layerCount=(rec.layers||[]).length;
+    const cardHeader=document.createElement('div');
+    cardHeader.className='list-card-header';
+    cardHeader.innerHTML=`
+      <div style="cursor:pointer;flex:1" onclick="toggleListCard(${rec.id})">
+        <div class="list-card-title">📋 ${title}</div>
+        <div class="list-card-meta">${layerCount}層</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="edit-btn" onclick="event.stopPropagation();editRecord(${idx})">編集</button>
+        <button class="del-btn" onclick="event.stopPropagation();deleteRecord(${idx})">削除</button>
+        <span style="color:#ccc" id="listArrow_${rec.id}">${isOpen?'▼':'▶'}</span>
+      </div>`;
+    const cardBody=document.createElement('div');
+    cardBody.className=`list-card-body ${isOpen?'open':''}`;
+    cardBody.id=`listBody_${rec.id}`;
+    const table=document.createElement('table');
+    table.className='obs-table';
+    table.innerHTML=`<thead><tr>
+      <th>層</th><th>色調名</th><th>色コード</th>
+      ${KONKYU_ITEMS.map(i=>`<th>${i.replace('・','/')}</th>`).join('')}
+      <th>その他遺物</th><th>粘性</th><th>締まり</th><th>備考</th>
+    </tr></thead>`;
+    const tbody=document.createElement('tbody');
+    (rec.layers||[]).forEach(layer=>{
+      const tr=document.createElement('tr');
+      const kCells=KONKYU_ITEMS.map(item=>{
+        const k=layer.konkyu?.[item]||{};
+        const parts=[];
+        if(k.min&&k.max&&k.min!==k.max) parts.push(`${k.min}〜${k.max}mm`);
+        else if(k.min) parts.push(`${k.min}mm`);
+        if(k.amt&&k.amt!=='-') parts.push(k.amt);
+        return `<td>${parts.join(' ')}</td>`;
+      }).join('');
+      tr.innerHTML=`<td>${layer.layerNum}</td>
+        <td>${layer.colorName||''}</td>
+        <td>${layer.colorCode||''}</td>
+        ${kCells}
+        <td>${layer.otherText||''}</td>
+        <td>${layer.nendo||''}</td>
+        <td>${layer.shime||''}</td>
+        <td>${layer.biko||''}</td>`;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    cardBody.appendChild(table);
+
+    // 写真エリア
+    const photos = groupPhotos[rec.id] || [];
+    const photoArea = document.createElement('div');
+    photoArea.className = 'photo-area';
+    photoArea.innerHTML = `<div class="photo-area-title">📷 メモ写真 ${photos.length ? photos.length+'枚' : ''}</div>`;
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
+    grid.id = `photoGrid_${rec.id}`;
+    photos.forEach(p => grid.appendChild(makePhotoCard(rec.id, p)));
+    photoArea.appendChild(grid);
+    const btnWrap = document.createElement('div');
+    btnWrap.className = 'photo-add-btns';
+    const camBtn = document.createElement('button');
+    camBtn.className = 'photo-add-btn';
+    camBtn.textContent = '📷 カメラ撮影';
+    camBtn.addEventListener('click', () => triggerPhotoInput(rec.id, 'camera'));
+    const libBtn = document.createElement('button');
+    libBtn.className = 'photo-add-btn';
+    libBtn.textContent = '🖼 ライブラリから選択';
+    libBtn.addEventListener('click', () => triggerPhotoInput(rec.id, 'library'));
+    btnWrap.appendChild(camBtn);
+    btnWrap.appendChild(libBtn);
+    photoArea.appendChild(btnWrap);
+    const camInput = document.createElement('input');
+    camInput.type='file';camInput.accept='image/*';camInput.capture='environment';
+    camInput.multiple=true;camInput.className='photo-input';
+    camInput.id=`photoCamInput_${rec.id}`;
+    camInput.addEventListener('change', e => handlePhotoInput(e, rec.id));
+    photoArea.appendChild(camInput);
+    const libInput = document.createElement('input');
+    libInput.type='file';libInput.accept='image/*';libInput.multiple=true;
+    libInput.className='photo-input';libInput.id=`photoLibInput_${rec.id}`;
+    libInput.addEventListener('change', e => handlePhotoInput(e, rec.id));
+    photoArea.appendChild(libInput);
+    cardBody.appendChild(photoArea);
+
+    card.appendChild(cardHeader);card.appendChild(cardBody);
+    container.appendChild(card);
+  });
+}
+
+// ===== 写真機能 =====
+const groupPhotos = {}; // {recId: [{id, dataUrl, caption}]}
+
+function makePhotoCard(recId, p) {
+  const card = document.createElement('div');
+  card.className = 'photo-card';
+  card.id = `photo_${p.id}`;
+  card.innerHTML = `
+    <img src="${p.dataUrl}" alt="${p.caption||''}">
+    <div class="photo-caption" title="${p.caption||''}">${p.caption||'（メモなし）'}</div>
+    <button class="photo-del" onclick="deletePhoto(${recId},'${p.id}')">✕</button>
+    <button class="photo-edit-btn" onclick="openDrawModal(${recId},'${p.id}')">✏️</button>
+  `;
+  card.querySelector('img').addEventListener('click', () => editCaption(recId, p.id));
+  return card;
+}
+
+function triggerPhotoInput(recId, type) {
+  const id = type==='camera' ? `photoCamInput_${recId}` : `photoLibInput_${recId}`;
+  const el = document.getElementById(id);
+  if (el) el.click();
+}
+
+function handlePhotoInput(e, recId) {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  if (!groupPhotos[recId]) groupPhotos[recId] = [];
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const id = `p_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+      const caption = prompt(`写真のメモを入力してください（スキップ可）:`) || '';
+      groupPhotos[recId].push({ id, dataUrl: ev.target.result, caption });
+      loaded++;
+      if (loaded === files.length) { renderList(); autoSave(); }
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function deletePhoto(recId, id) {
+  if (!confirm('この写真を削除しますか？')) return;
+  if (groupPhotos[recId]) groupPhotos[recId] = groupPhotos[recId].filter(p => p.id !== id);
+  renderList();
+  autoSave();
+}
+
+function editCaption(recId, id) {
+  const p = (groupPhotos[recId]||[]).find(p => p.id === id);
+  if (!p) return;
+  const c = prompt('メモを編集:', p.caption||'');
+  if (c === null) return;
+  p.caption = c;
+  renderList();
+  autoSave();
+}
+
+// ===== 手書き機能 =====
+let drawCtx=null, drawCanvas_=null, isDrawing=false, drawMode='pen';
+let drawHistory=[], currentDrawRecId=null, currentDrawPhotoId=null;
+
+function initCanvas(imgSrc) {
+  drawCanvas_ = document.getElementById('drawCanvas');
+  drawCtx = drawCanvas_.getContext('2d');
+  const img = new Image();
+  img.onload = () => {
+    const maxW=window.innerWidth, maxH=window.innerHeight-120;
+    const scale = Math.min(maxW/img.width, maxH/img.height, 1);
+    drawCanvas_.width = img.width*scale;
+    drawCanvas_.height = img.height*scale;
+    drawCtx.drawImage(img, 0, 0, drawCanvas_.width, drawCanvas_.height);
+    drawHistory = [drawCtx.getImageData(0,0,drawCanvas_.width,drawCanvas_.height)];
+  };
+  img.src = imgSrc;
+}
+
+function openDrawModal(recId, photoId) {
+  const p = (groupPhotos[recId]||[]).find(p=>p.id===photoId);
+  if (!p) return;
+  currentDrawRecId=recId; currentDrawPhotoId=photoId;
+  document.getElementById('drawModal').classList.add('open');
+  setDrawMode('pen');
+  initCanvas(p.dataUrl);
+  setupDrawEvents();
+}
+
+function closeDrawModal() {
+  document.getElementById('drawModal').classList.remove('open');
+  removeDrawEvents();
+}
+
+function setDrawMode(mode) {
+  drawMode=mode;
+  document.getElementById('btnPen').className   = mode==='pen'    ? 'btn btn-white' : 'btn btn-gray';
+  document.getElementById('btnEraser').className= mode==='eraser' ? 'btn btn-white' : 'btn btn-gray';
+  ['btnPen','btnEraser'].forEach(id=>{
+    document.getElementById(id).style.padding='5px 10px';
+    document.getElementById(id).style.fontSize='13px';
+  });
+}
+function undoDraw(){if(drawHistory.length<=1)return;drawHistory.pop();drawCtx.putImageData(drawHistory[drawHistory.length-1],0,0);}
+function clearDraw(){if(drawHistory.length>0){drawCtx.putImageData(drawHistory[0],0,0);drawHistory=[drawHistory[0]];}}
+
+function getPos(e,canvas){
+  const rect=canvas.getBoundingClientRect();
+  const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-rect.left)*sx,y:(src.clientY-rect.top)*sy};
+}
+function onDrawStart(e){e.preventDefault();isDrawing=true;const pos=getPos(e,drawCanvas_);drawCtx.beginPath();drawCtx.moveTo(pos.x,pos.y);}
+function onDrawMove(e){
+  e.preventDefault();if(!isDrawing)return;
+  const pos=getPos(e,drawCanvas_);
+  const size=parseInt(document.getElementById('drawSize').value);
+  const color=document.getElementById('drawColor').value;
+  if(drawMode==='eraser'){drawCtx.globalCompositeOperation='destination-out';drawCtx.lineWidth=size*3;drawCtx.strokeStyle='rgba(0,0,0,1)';}
+  else{drawCtx.globalCompositeOperation='source-over';drawCtx.lineWidth=size;drawCtx.strokeStyle=color;}
+  drawCtx.lineCap='round';drawCtx.lineJoin='round';drawCtx.lineTo(pos.x,pos.y);drawCtx.stroke();
+}
+function onDrawEnd(e){if(!isDrawing)return;isDrawing=false;drawCtx.globalCompositeOperation='source-over';drawHistory.push(drawCtx.getImageData(0,0,drawCanvas_.width,drawCanvas_.height));}
+
+function setupDrawEvents(){
+  const c=document.getElementById('drawCanvas');
+  c.addEventListener('mousedown',onDrawStart);c.addEventListener('mousemove',onDrawMove);c.addEventListener('mouseup',onDrawEnd);
+  c.addEventListener('touchstart',onDrawStart,{passive:false});c.addEventListener('touchmove',onDrawMove,{passive:false});c.addEventListener('touchend',onDrawEnd);
+}
+function removeDrawEvents(){
+  const c=document.getElementById('drawCanvas');
+  c.removeEventListener('mousedown',onDrawStart);c.removeEventListener('mousemove',onDrawMove);c.removeEventListener('mouseup',onDrawEnd);
+  c.removeEventListener('touchstart',onDrawStart);c.removeEventListener('touchmove',onDrawMove);c.removeEventListener('touchend',onDrawEnd);
+}
+function saveDrawing(){
+  const photos=groupPhotos[currentDrawRecId];if(!photos)return;
+  const p=photos.find(p=>p.id===currentDrawPhotoId);if(!p)return;
+  const canvas=document.getElementById('drawCanvas');
+  // ① フル画質でダウンロード
+  const fullDataUrl=canvas.toDataURL('image/jpeg',0.85);
+  const rec=records.find(r=>r.id===currentDrawRecId);
+  const ikoStr=rec?`${rec.iko||''}${rec.section?'_'+rec.section:''}` : 'photo';
+  const capPart=p.caption?`_${p.caption.replace(/[\/\\:*?"<>|]/g,'')}` :'';
+  const a=document.createElement('a');
+  a.href=fullDataUrl;
+  a.download=`${ikoStr}${capPart}_${new Date().toISOString().slice(0,10)}.jpg`;
+  a.click();
+  // ② 圧縮版（幅600px以下・品質40%）をアプリ内に保存
+  const cc=document.createElement('canvas');
+  const maxW=600;
+  const scale=Math.min(1,maxW/canvas.width);
+  cc.width=Math.round(canvas.width*scale);
+  cc.height=Math.round(canvas.height*scale);
+  cc.getContext('2d').drawImage(canvas,0,0,cc.width,cc.height);
+  p.dataUrl=cc.toDataURL('image/jpeg',0.4);
+  closeDrawModal();renderList();autoSave();
+}
+
+function resetAutoSave() {
+  if(!confirm('自動保存データをリセットしますか？\nアプリ上のデータは消えませんが、次回起動時に自動復元されなくなります。')) return;
+  localStorage.removeItem('edoRecords');
+  localStorage.removeItem('edoPhotos');
+  localStorage.removeItem('edoAutoSaveTime');
+  const el=document.getElementById('autoSaveStatus');
+  if(el){el.textContent='自動保存：リセット済み';el.style.color='#ccc';}
+  alert('自動保存をリセットしました。');
+}
+
+function toggleListCard(id) {
+  const body=document.getElementById(`listBody_${id}`);
+  const arrow=document.getElementById(`listArrow_${id}`);
+  if(!body) return;
+  if(body.classList.contains('open')){body.classList.remove('open');if(arrow)arrow.textContent='▶';openListGroups.delete(id);}
+  else{body.classList.add('open');if(arrow)arrow.textContent='▼';openListGroups.add(id);}
+}
+
+function updateBadge() {
+  const n=records.length;
+  document.getElementById('countBadge').textContent=n;
+  document.getElementById('listCount').textContent=`${n}件`;
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['input','list'][i]===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===`panel-${name}`));
+  if(name==='list') renderList();
+}
+
+function openLedger() {
+  if(!records.length){alert('データがありません。');return;}
+  const body=document.getElementById('ledgerBody');
+  body.innerHTML='';
+  records.forEach(rec=>{
+    const page=document.createElement('div');
+    page.className='ledger-page';
+    const title=`遺構 ${rec.iko||''}${rec.section?'−'+rec.section:''}${rec.metaBiko?'　'+rec.metaBiko:''}`;
+    page.innerHTML=`<div class="ledger-title">土層観察表（江戸）</div><div class="ledger-meta">${title}</div>`;
+
+    // 写真エリア（上部）
+    const photos=groupPhotos[rec.id]||[];
+    if(photos.length){
+      const photoWrap=document.createElement('div');
+      photoWrap.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px';
+      const imgSize=photos.length<=3?200:photos.length<=6?150:110;
+      photos.forEach(p=>{
+        const item=document.createElement('div');
+        item.style.cssText='text-align:center';
+        item.innerHTML=`<img src="${p.dataUrl}" width="${imgSize}" height="${Math.round(imgSize*0.75)}" style="object-fit:cover;border:1px solid #ccc;display:block"><div style="font-size:10px;color:#555;margin-top:2px;max-width:${imgSize}px">${p.caption||''}</div>`;
+        photoWrap.appendChild(item);
+      });
+      page.appendChild(photoWrap);
+      const hr=document.createElement('hr');
+      hr.style.cssText='border:none;border-top:1px solid #ccc;margin:8px 0';
+      page.appendChild(hr);
+    }
+
+    const table=document.createElement('table');
+    table.className='ledger-obs-table';
+    table.innerHTML=`<thead>
+      <tr>
+        <th rowspan="2">層位</th>
+        <th rowspan="2">主体土（色調）</th>
+        <th colspan="${KONKYU_ITEMS.length}">混入物（上段：粒径mm　下段：混入量）</th>
+        <th rowspan="2">その他遺物</th>
+        <th rowspan="2">粘性</th>
+        <th rowspan="2">締まり</th>
+        <th rowspan="2">備考</th>
+      </tr>
+      <tr>${KONKYU_ITEMS.map(i=>`<th>${i}</th>`).join('')}</tr>
+    </thead>`;
+    const tbody=document.createElement('tbody');
+    (rec.layers||[]).forEach(layer=>{
+      const tr1=document.createElement('tr');
+      const tr2=document.createElement('tr');
+      const colorStr=`${layer.colorName||''}${layer.colorCode?'\n('+layer.colorCode+')':''}`;
+      tr1.innerHTML=`
+        <td rowspan="2" style="font-weight:bold">${layer.layerNum}</td>
+        <td rowspan="2" style="text-align:left">${colorStr}</td>
+        ${KONKYU_ITEMS.map(item=>{const k=layer.konkyu?.[item]||{};const s=k.min&&k.max&&k.min!==k.max?`${k.min}〜${k.max}`:k.min||'';return `<td>${s}</td>`;}).join('')}
+        <td rowspan="2">${layer.otherText||''}</td>
+        <td rowspan="2">${layer.nendo||''}</td>
+        <td rowspan="2">${layer.shime||''}</td>
+        <td rowspan="2" style="text-align:left">${layer.biko||''}</td>`;
+      tr2.innerHTML=KONKYU_ITEMS.map(item=>{const k=layer.konkyu?.[item]||{};return `<td style="font-weight:bold">${k.amt&&k.amt!=='-'?k.amt:''}</td>`;}).join('');
+      tbody.appendChild(tr1);tbody.appendChild(tr2);
+    });
+    table.appendChild(tbody);
+    page.appendChild(table);
+    const note=document.createElement('div');
+    note.className='ledger-note';
+    note.innerHTML='<strong>【混入量】</strong> ●非常に多い（51%〜）　◎多量（21〜50%）　○含む（6〜20%）　▲少量（3〜5%）　△微量（1〜2%）　<strong>【粘性・締まり】</strong> ◎強い　○普通　△やや弱い　×なし';
+    page.appendChild(note);
+    body.appendChild(page);
+  });
+  document.getElementById('ledgerModal').classList.add('open');
+}
+
+function closeLedger(){document.getElementById('ledgerModal').classList.remove('open');}
+
+function exportCSV() {
+  if(!records.length){alert('データがありません。');return;}
+  const headers=['遺構','セクション','備考','層番','色調名','色コード',
+    ...KONKYU_ITEMS.map(i=>i+'_最小mm'),...KONKYU_ITEMS.map(i=>i+'_最大mm'),...KONKYU_ITEMS.map(i=>i+'_混入量'),
+    'その他遺物詳細','粘性','締まり','備考（層）'];
+  const rows=[];
+  records.forEach(rec=>{
+    (rec.layers||[]).forEach(layer=>{
+      rows.push([rec.iko,rec.section,rec.metaBiko,layer.layerNum,
+        layer.colorName,layer.colorCode,
+        ...KONKYU_ITEMS.map(i=>layer.konkyu?.[i]?.min||''),
+        ...KONKYU_ITEMS.map(i=>layer.konkyu?.[i]?.max||''),
+        ...KONKYU_ITEMS.map(i=>layer.konkyu?.[i]?.amt||''),
+        layer.otherText,layer.nendo,layer.shime,layer.biko
+      ].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
+    });
+  });
+  const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`土層観察表_江戸_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ===== 千代田区XLSフォーム貼付用CSV =====
+// XLS構造：1層=2行ペア
+//   上段行：A:層位 B:主体土(色調) C:ローム土粒径 D:焼土粒径 E:炭化物粒径 F:玉砂利粒径 G:礫石片粒径 H:砂粒径 I:粘土粒径 J:その他遺物粒径 K:粘性 L:締まり M:備考
+//   下段行：A:空  B:空           C:ローム土混入量 ...                                                                       K:空   L:空    M:空
+function exportFormCSV() {
+  if(!records.length){alert('データがありません。');return;}
+  // ヘッダーは貼付確認用（Excelには貼らない）
+  const headers=['【上段】層位','主体土(色調)','ローム土_粒径','焼土_粒径','炭化物_粒径','玉砂利_粒径','礫石片_粒径','砂_粒径','粘土_粒径','その他遺物_粒径','粘性','締まり','備考'];
+  const rows=[];
+  records.forEach(rec=>{
+    (rec.layers||[]).forEach(layer=>{
+      const colorStr=`${layer.colorName||''}${layer.colorCode?' ('+layer.colorCode+')':''}`;
+      // 混入物の粒径・混入量
+      const konkyu_size = KONKYU_ITEMS.map(item=>{
+        const k=layer.konkyu?.[item]||{};
+        if(!k.min&&!k.max) return '';
+        return k.min===k.max||!k.max ? (k.min||'') : `${k.min}〜${k.max}`;
+      });
+      const konkyu_amt = KONKYU_ITEMS.map(item=>{
+        const k=layer.konkyu?.[item]||{};
+        return k.amt&&k.amt!=='-'?k.amt:'';
+      });
+      // 上段行（粒径）
+      rows.push([
+        layer.layerNum,   // A: 層位
+        colorStr,         // B: 主体土（色調）
+        ...konkyu_size,   // C〜J: 各混入物の粒径
+        layer.nendo||'',  // K: 粘性
+        layer.shime||'',  // L: 締まり
+        layer.biko||'',   // M: 備考
+      ].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
+      // 下段行（混入量）
+      rows.push([
+        '',               // A: 空
+        '',               // B: 空
+        ...konkyu_amt,    // C〜J: 各混入物の混入量
+        '',               // K: 空
+        '',               // L: 空
+        '',               // M: 空
+      ].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
+    });
+  });
+  const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`土層観察表_江戸_フォーム貼付用_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function saveJSON() {
+  const def=`土層観察表_江戸_${new Date().toISOString().slice(0,10)}`;
+  const name=prompt('ファイル名（.json自動付加）:',def);
+  if(name===null) return;
+  const payload={records, photos:groupPhotos};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(name.trim()||def).replace(/\.json$/i,'')+'.json';
+  a.click();
+}
+function loadJSON(){document.getElementById('jsonFileInput').click();}
+function loadJSONFile(e){
+  const file=e.target.files[0];if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      const newRecords=Array.isArray(data)?data:(data.records||[]);
+      const newPhotos=Array.isArray(data)?{}:(data.photos||{});
+      if(!Array.isArray(newRecords)) throw new Error();
+      if(records.length&&!confirm('現在のデータを置き換えますか？')) return;
+      records=newRecords;
+      Object.keys(groupPhotos).forEach(k=>delete groupPhotos[k]);
+      Object.assign(groupPhotos,newPhotos);
+      renderList();updateBadge();
+      alert(`${records.length}件を読み込みました。`);
+    }catch{alert('JSONの読み込みに失敗しました。');}
+  };
+  r.readAsText(file);e.target.value='';
+}
+
+init();
+</script>
+</body>
+</html>
